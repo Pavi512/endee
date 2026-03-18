@@ -38,6 +38,14 @@ scholarmind/uploads/*
 !scholarmind/uploads/.gitkeep
 scholarmind/.env
 
+# --- Presentation & Internal Docs (Do not push) ---
+detailed_explanation_10yo.md
+technical_deep_dive.md
+project_explanation.md
+walkthrough.md
+task.md
+implementation_plan.md
+
 # Python general
 *.py[cod]
 *$py.class
