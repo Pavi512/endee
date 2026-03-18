@@ -30,3 +30,14 @@ frontend/*
 
 # DS Store
 .DS_Store
+
+# --- ScholarMind Specific ---
+scholarmind/venv/
+scholarmind/__pycache__/
+scholarmind/uploads/*
+!scholarmind/uploads/.gitkeep
+scholarmind/.env
+
+# Python general
+*.py[cod]
+*$py.class

@@ -1,139 +1,118 @@
-<p align="center">
-  <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="docs/assets/logo-light.svg">
-      <img height="100" alt="Endee" src="docs/assets/logo-dark.svg">
-  </picture>
-</p>
+# 🧠 ScholarMind — AI-powered Knowledge Search & RAG Engine
 
-<p align="center">
-    <b>High-performance open-source vector database for AI search, RAG, semantic search, and hybrid retrieval.</b>
-</p>
+> **Project Submission for Endee Evaluation**
+> This repository contains **ScholarMind**, a full-stack AI application built on top of the **Endee Vector Database**. It demonstrates practical use cases including Semantic Search, RAG (Retrieval-Augmented Generation), and filtered vector retrieval.
 
-<p align="center">
-    <a href="./docs/getting-started.md"><img src="https://img.shields.io/badge/Quick_Start-Local_Setup-success?style=flat-square" alt="Quick Start"></a>
-    <a href="https://docs.endee.io/quick-start"><img src="https://img.shields.io/badge/Docs-Quick_Start-success?style=flat-square" alt="Docs"></a>
-    <a href="https://github.com/endee-io/endee/blob/master/LICENSE"><img src="https://img.shields.io/github/license/endee-io/endee?style=flat-square" alt="License"></a>
-    <a href="https://discord.gg/5HFGqDZQE3"><img src="https://img.shields.io/badge/Discord-Join_Chat-5865F2?logo=discord&style=flat-square" alt="Discord"></a>
-    <a href="https://endee.io/"><img src="https://img.shields.io/badge/Website-Endee-111111?style=flat-square" alt="Website"></a>
-    <!-- <a href="https://endee.io/benchmarks"><img src="https://img.shields.io/badge/Benchmarks-Coming_Soon-1F8B4C?style=flat-square" alt="Benchmarks"></a> -->
-    <!-- <a href="https://endee.io/cloud"><img src="https://img.shields.io/badge/Cloud-Coming_Soon-2496ED?style=flat-square" alt="Cloud"></a> -->
-</p>
+---
 
-<p align="center">
-<strong><a href="./docs/getting-started.md">Quick Start</a> • <a href="#why-endee">Why Endee</a> • <a href="#use-cases">Use Cases</a> • <a href="#features">Features</a> • <a href="#api-and-clients">API and Clients</a> • <a href="#docs-and-links">Docs</a> • <a href="#community-and-contact">Contact</a></strong>
-</p>
+## 📌 Project Overview
 
-# Endee: Open-Source Vector Database for AI Search
+**ScholarMind** transforms static documents into an interactive, AI-powered knowledge base. Users can upload PDFs, TXT, or Markdown files, which are then processed, embedded, and stored in **Endee**.
 
-**Endee** is a high-performance open-source vector database built for AI search and retrieval workloads. It is designed for teams building **RAG pipelines**, **semantic search**, **hybrid search**, recommendation systems, and filtered vector retrieval APIs that need production-oriented performance and control.
+### Key Features:
+- **🔍 Semantic Search**: Find relevant document passages by meaning rather than just keywords.
+- **💬 RAG Question-Answering**: Ask natural language questions and receive AI-generated answers grounded in your uploaded documents (powered by Groq/Llama3).
+- **🏷️ Metadata Filtering**: Narrow down search results by document category using Endee's high-performance payload filtering.
+- **🚀 Premium UI**: A sleek, dark-mode dashboard for document management and AI interaction.
 
-Endee combines vector search with filtering, sparse retrieval support, backup workflows, and deployment flexibility across local builds and Docker-based environments. The project is implemented in C++ and optimized for modern CPU targets, including AVX2, AVX512, NEON, and SVE2.
+---
 
-If you want the fastest path to evaluate Endee locally, start with the [Getting Started guide](./docs/getting-started.md) or the hosted docs at [docs.endee.io](https://docs.endee.io/quick-start).
+## 🏗️ System Design
 
-## Why Endee
+ScholarMind follows a decoupled architecture where the Python/Flask application acts as the orchestration layer and the Endee C++ engine handles the heavy-lifting of vector similarity search.
 
-- Built as a dedicated vector database for AI applications, search systems, and retrieval-heavy workloads.
-- Supports dense vector retrieval plus sparse search capabilities for hybrid search use cases.
-- Includes payload filtering for metadata-aware retrieval and application-specific query logic.
-- Ships with operational features already documented in this repo, including backup flows and runtime observability.
-- Offers flexible deployment paths: local scripts, manual builds, Docker images, and prebuilt registry images.
-
-## Getting Started
-
-The full installation, build, Docker, runtime, and authentication instructions are in [docs/getting-started.md](./docs/getting-started.md).
-
-Fastest local path:
-
-```bash
-chmod +x ./install.sh ./run.sh
-./install.sh --release --avx2
-./run.sh
+```mermaid
+graph TD
+    User((User)) <--> UI[Frontend SPA - HTML/CSS/JS]
+    UI <--> Backend[Flask Server - Python]
+    
+    subgraph "ScholarMind Application"
+        Backend --> Loader[Data Loader - PDF/TXT/MD]
+        Backend --> Embed[Embedding Service - all-MiniLM-L6-v2]
+        Backend --> RAG[RAG Engine - Groq LLM]
+    end
+    
+    subgraph "Vector Database Layer"
+        Backend <--> Client[Endee Python Client]
+        Client <--> DB[(Endee Vector DB - Docker)]
+    end
+    
+    Loader --> Embed
+    Embed --> DB
+    RAG -- Context Retrieval --> DB
 ```
 
-The server listens on port `8080`. For detailed setup paths, supported operating systems, CPU optimization flags, Docker usage, and authentication examples, use:
+---
 
-- [Getting Started](./docs/getting-started.md)
-- [Hosted Quick Start Docs](https://docs.endee.io/quick-start)
+## 🔧 How Endee is Empowering ScholarMind
 
-## Use Cases
+This project utilizes several core capabilities of the Endee Vector Database:
 
-### RAG and AI Retrieval
+1.  **HNSW Indexing**: High-speed approximate nearest neighbor search for embeddings.
+2.  **Dense Vector Storage**: Efficiently storing 384-dimensional vectors from the `all-MiniLM-L6-v2` model.
+3.  **Payload Filtering**: Using Endee's metadata storage to filter search results by `category` (e.g., "AI", "Vector DB").
+4.  **Low-Latency Retrieval**: Powering the RAG pipeline with fast context lookup to minimize LLM response times.
 
-Use Endee as the retrieval layer for question answering, chat assistants, copilots, and other RAG applications that need fast vector search with metadata-aware filtering.
+---
 
-### Agentic AI and AI Agent Memory
+## 🚀 Setup & Installation
 
-Use Endee as the long-term memory and context retrieval layer for AI agents built with frameworks like LangChain, CrewAI, AutoGen, and LlamaIndex. Store and retrieve past observations, tool outputs, conversation history, and domain knowledge mid-execution with low-latency filtered vector search, so your autonomous agents get the right context without stalling their reasoning loop.
+Follow these steps to get the full project running locally on Windows.
 
-### Semantic Search
+### Prerequisites
+- **Docker Desktop** (Required for Endee)
+- **Python 3.9+**
+- **Groq API Key** (Optional for RAG — [Get one for free here](https://console.groq.com))
 
-Build semantic search experiences for documents, products, support content, and knowledge bases using vector similarity search instead of exact keyword-only matching.
+### Step 1: Start Endee Vector Database
+```powershell
+# From the root of this repository
+docker compose up -d
+```
+*The database will be available at http://localhost:8080.*
 
-### Hybrid Search
+### Step 2: Setup ScholarMind Application
+```powershell
+cd scholarmind
 
-Combine dense retrieval, sparse vectors, and filtering to improve relevance for search workflows where both semantic understanding and term-level precision matter.
+# Create and activate virtual environment
+python -m venv venv
+.\venv\Scripts\activate
 
-### Recommendations and Matching
+# Install dependencies
+pip install -r requirements.txt
+```
 
-Support recommendation, similarity matching, and nearest-neighbor retrieval workflows across text, embeddings, and other high-dimensional representations.
+### Step 3: Configure Environment
+Copy `.env.example` to `.env` and add your Groq API key (if you have one).
+```powershell
+cp .env.example .env
+```
 
-## Features
+### Step 4: Run ScholarMind
+```powershell
+python app.py
+```
+*Visit the application at **http://localhost:5000**.*
 
-- **Vector search** for AI retrieval and semantic similarity workloads.
-- **Hybrid retrieval support** with sparse vector capabilities documented in [docs/sparse.md](./docs/sparse.md).
-- **Payload filtering** for structured retrieval logic documented in [docs/filter.md](./docs/filter.md).
-- **Backup APIs and flows** documented in [docs/backup-system.md](./docs/backup-system.md).
-- **Operational logging and instrumentation** documented in [docs/logs.md](./docs/logs.md) and [docs/mdbx-instrumentation.md](./docs/mdbx-instrumentation.md).
-- **CPU-targeted builds** for AVX2, AVX512, NEON, and SVE2 deployments.
-- **Docker deployment options** for local and server environments.
+---
 
-## API and Clients
+## 🛠️ Technology Stack
+- **Vector DB**: [Endee](https://github.com/endee-io/endee)
+- **Backend**: Flask (Python)
+- **Embeddings**: Sentence-Transformers (all-MiniLM-L6-v2)
+- **LLM**: Groq (Llama-3-8b)
+- **Frontend**: Vanilla JavaScript + CSS (Glassmorphism design)
 
-Endee exposes an HTTP API for managing indexes and serving retrieval workloads. The current repo documentation and examples focus on running the server directly and calling its API endpoints.
+---
 
-Current developer entry points:
+# About Endee (Core Database)
 
-- [Getting Started](./docs/getting-started.md) for local build and run flows
-- [Hosted Docs](https://docs.endee.io/quick-start) for product documentation
-- [Release Notes 1.0.0](https://github.com/endee-io/endee/releases/tag/1.0.0) for recent platform changes
+Endee is a high-performance open-source vector database built for AI search and retrieval workloads. It is optimized for modern CPU targets, including AVX2, AVX512, NEON, and SVE2.
 
-## Docs and Links
+*For more details on the underlying database engine, see the [original core documentation](./docs/getting-started.md).*
 
-- [Getting Started](./docs/getting-started.md)
-- [Hosted Documentation](https://docs.endee.io/quick-start)
-- [Release Notes](https://github.com/endee-io/endee/releases/tag/1.0.0)
-- [Sparse Search](./docs/sparse.md)
-- [Filtering](./docs/filter.md)
-- [Backups](./docs/backup-system.md)
-
-## Community and Contact
-
-- Join the community on [Discord](https://discord.gg/5HFGqDZQE3)
-- Visit the website at [endee.io](https://endee.io/)
-- For trademark or branding permissions, contact [enterprise@endee.io](mailto:enterprise@endee.io)
-
-## Contributing
-
-We welcome contributions from the community to help make vector search faster and more accessible for everyone.
-
-- Submit pull requests for fixes, features, and improvements
-- Report bugs or performance issues through GitHub issues
-- Propose enhancements for search quality, performance, and deployment workflows
+---
 
 ## License
-
-Endee is open source software licensed under the **Apache License 2.0**. See the [LICENSE](./LICENSE) file for full terms.
-
-## Trademark and Branding
-
-“Endee” and the Endee logo are trademarks of Endee Labs.
-
-The Apache License 2.0 does not grant permission to use the Endee name, logos, or branding in a way that suggests endorsement or affiliation.
-
-If you offer a hosted or managed service based on this software, you must use your own branding and avoid implying it is an official Endee service.
-
-## Third-Party Software
-
-This project includes or depends on third-party software components licensed under their respective open-source licenses. Use of those components is governed by their own license terms.
+Endee and ScholarMind are open-source software licensed under the **Apache License 2.0**.
